@@ -35,14 +35,13 @@ discover_disks:
     jmp $
 
 disk_error:
-
-    mov ah, 0x2
-    mov bh, 0
-    mov dl, 0
+    mov ah, 0x13
+    mov al, 0x01
+    mov bh, 0x00
+    mov bl, 0x1F
+    mov cx, 11
     mov dh, [row]
-    int 0x10
-    mov ah, 0x0e
-    mov al, 'E'
+    mov dl, 0
     int 0x10
     inc [row]
     inc [disk]
