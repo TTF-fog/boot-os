@@ -10,15 +10,15 @@ mov es, ax
 mov bp, stref
 
 ;draw text
-mov ah, 0x13
-mov al, 0x01
-mov bh, 0x00
-mov bl, 0x1F
-mov cx, 4
-mov dh, 0
-mov dl, 0
-int 0x10
-
+fail:
+    mov ah, 0x13
+    mov al, 0x01
+    mov bh, 0x00
+    mov bl, 0x1F
+    mov cx, 11
+    mov dh, 0
+    mov dl, 0
+    int 0x10
 
 xor ax, ax
 mov es, ax
@@ -29,22 +29,15 @@ mov al, 1
 mov ch, 0
 mov cl, 2
 mov dh, 0
-mov dl, 0x81
+mov dl, 0x80
 int 0x13
 
-jc disk_error
+jc fail
 
 jmp 0x0000:0x7e00
 
-disk_error:
-    mov ah, 0x2
-    mov dh, 0
-    mov ah, 0x0e
-    mov al, 'E'
-    int 0x10
-    jmp $
 
-stref db 'boot'
+stref db 'Boot Failed'
 
 times 510-($-$$) db 0
 dw 0xaa55

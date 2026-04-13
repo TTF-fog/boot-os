@@ -1,26 +1,58 @@
 [org 0x7e00]
 
-; Set video mode 80x25 text
 mov ah, 0x00
-mov al, 0x03        ; mode 3 = 80x25 color text (mode 1 is 40x25)
+mov al, 0x03
 int 0x10
 
-; Set up es:bp -> string
 xor ax, ax
 mov es, ax
 mov bp, stref
 
-; Call int 0x10 ah=0x13 AFTER es:bp are set
 mov ah, 0x13
-mov al, 0x01        ; write mode 1: advance cursor
-mov bh, 0x00        ; page 0
-mov bl, 0x07        ; attribute: light grey on black
-mov cx, 4           ; string length
-mov dh, 0           ; row 0
-mov dl, 0           ; col 0
+mov al, 0x01
+mov bh, 0x00
+mov bl, 0x1F
+mov cx, 6
+mov dh, 0
+mov dl, 0
 int 0x10
+mov dh, 1
+mov bl, 0x80
+xor ax, ax
+mov es, ax
+mov bp, diskmsg
+discover_disks:
+    mov ah, 0x02
+    mov al, 1
+    mov ch, 0
+    mov cl, 2
+    mov bh, 0
+    int 0x13
+    jc disk_error
+    inc [disk]
+    cmp [disk], 0x85
+    jne discover_disks
+    jmp $
+
+disk_error:
+
+    mov ah, 0x2
+    mov bh, 0
+    mov dl, 0
+    mov dh, [row]
+    int 0x10
+    mov ah, 0x0e
+    mov al, 'E'
+    int 0x10
+    inc [row]
+    inc [disk]
+    cmp [disk], 0x85
+    jne discover_disks
+    jmp $
 
 jmp $
 
-stref db 'test'
-
+stref db 'Disks:'
+diskmsg db 'No Disk'
+row db 1
+disk db 0x80
